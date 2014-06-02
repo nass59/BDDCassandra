@@ -37,22 +37,31 @@ public class SimpleClient {
                 + "femmes_moins_de_20_ans int, femmes_de_20_a_60_ans int, femmes_plus_de_60_ans int, licences_en_zone_urbaine_sensible_zus int, population_totale_2010 int, population_femme int, population_femmes_de_moins_de_20_ans int, "
                 + "population_femme_de_20_a_60_ans int, population_femme_de_plus_de_60_ans int, population_de_moins_de_20_ans int, population_de_20_a_60_ans int, population_de_plus_de_60_ans int);"
         );
-
+        System.out.println(" table essone created");
+        System.out.println("...");
         session.execute(
                 "CREATE TABLE bddCassandra.seinesaintdenis (code_insee int PRIMARY KEY, code_postal int, commune text, wgs84 text, federation text,licences_en_2011 int, moins_de_20_ans int, entre_20_et_60_ans int, plus_de_60_ans int, femmes int, "
                 + "femmes_moins_de_20_ans int, femmes_de_20_a_60_ans int, femmes_plus_de_60_ans int, licences_en_zone_urbaine_sensible_zus int, population_totale_2010 int, population_femme int, population_femmes_de_moins_de_20_ans int, "
                 + "population_femme_de_20_a_60_ans int, population_femme_de_plus_de_60_ans int, population_de_moins_de_20_ans int, population_de_20_a_60_ans int, population_de_plus_de_60_ans int);"
         );
-
+        System.out.println("table seinesaintdenis created");
+        System.out.println("...");
         session.execute(
                 "CREATE TABLE bddCassandra.valdemarne (code_insee int PRIMARY KEY, code_postal int, commune text, wgs84 text, federation text,licences_en_2011 int, moins_de_20_ans int, entre_20_et_60_ans int, plus_de_60_ans int, femmes int, "
                 + "femmes_moins_de_20_ans int, femmes_de_20_a_60_ans int, femmes_plus_de_60_ans int, licences_en_zone_urbaine_sensible_zus int, population_totale_2010 int, population_femme int, population_femmes_de_moins_de_20_ans int, "
                 + "population_femme_de_20_a_60_ans int, population_femme_de_plus_de_60_ans int, population_de_moins_de_20_ans int, population_de_20_a_60_ans int, population_de_plus_de_60_ans int);"
         );
+        System.out.println("table valdemarne created");
+        System.out.println("...");
 
         keyspaceCreated = true;
     }
 
+    public void querryPutEssone() {
+         session.execute(
+                "COPY bddCassandra.essone (code_insee, code_postal, commune, wgs84, federation, licences_en_2011, moins_de_20_ans, entre_20_et_60_ans, plus_de_60_ans, femmes, femmes_moins_de_20_ans, femmes_de_20_a_60_ans, femmes_plus_de_60_ans, licences_en_zone_urbaine_sensible_zus, population_totale_2010, population_femme, population_femmes_de_moins_de_20_ans, population_femme_de_20_a_60_ans, population_femme_de_plus_de_60_ans, population_de_moins_de_20_ans, population_de_20_a_60_ans, population_de_plus_de_60_ans) FROM 'essone.csv' WITH DELIMITER=';' ;"
+        ); 
+    }
     public void queryEssone() {
         // on execute une requête
         ResultSet results = session.execute("SELECT * FROM bddCassandra.essone ");
@@ -94,14 +103,17 @@ public class SimpleClient {
         // connection (localhost)
         client.connect("127.0.0.1");
         // création de la base de données (schema)
-        try {
-            client.createSchema();
-        } catch (Exception e) {
+        
+       
+            //client.createSchema();
+            client.querryPutEssone();
+            client.queryEssone();
+        
             // on interroge la base de données
             client.queryEssone();
             client.queryValDeMarne();
             client.querySeineSaintDenis();
             client.close();
-        }
+     
     }
 }
