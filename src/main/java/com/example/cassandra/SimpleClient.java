@@ -11,7 +11,6 @@ public class SimpleClient {
 
     private Cluster cluster;
     private Session session;
-    private static boolean keyspaceCreated = false;
 
     public void connect(String node) {
         cluster = Cluster.builder().addContactPoint(node).build();
@@ -29,28 +28,26 @@ public class SimpleClient {
 
     public void createSchema() {
         // création d'un keyspace nommé "bddCassandra"
-        session.execute("CREATE KEYSPACE bddCassandra WITH replication "
+        session.execute("CREATE KEYSPACE IF NOT EXISTS bddCassandra WITH replication "
                 + "= {'class':'SimpleStrategy', 'replication_factor':3};");
         // A changer
         session.execute(
-                "CREATE TABLE bddCassandra.essone (code_insee int PRIMARY KEY, code_postal int, commune text, wgs84 text, federation text,licences_en_2011 int, moins_de_20_ans int, entre_20_et_60_ans int, plus_de_60_ans int, femmes int, "
+                "CREATE TABLE IF NOT EXISTS bddCassandra.essone (code_insee int PRIMARY KEY, code_postal int, commune text, wgs84 text, federation text,licences_en_2011 int, moins_de_20_ans int, entre_20_et_60_ans int, plus_de_60_ans int, femmes int, "
                 + "femmes_moins_de_20_ans int, femmes_de_20_a_60_ans int, femmes_plus_de_60_ans int, licences_en_zone_urbaine_sensible_zus int, population_totale_2010 int, population_femme int, population_femmes_de_moins_de_20_ans int, "
                 + "population_femme_de_20_a_60_ans int, population_femme_de_plus_de_60_ans int, population_de_moins_de_20_ans int, population_de_20_a_60_ans int, population_de_plus_de_60_ans int);"
         );
 
         session.execute(
-                "CREATE TABLE bddCassandra.seinesaintdenis (code_insee int PRIMARY KEY, code_postal int, commune text, wgs84 text, federation text,licences_en_2011 int, moins_de_20_ans int, entre_20_et_60_ans int, plus_de_60_ans int, femmes int, "
+                "CREATE TABLE IF NOT EXISTS bddCassandra.seinesaintdenis (code_insee int PRIMARY KEY, code_postal int, commune text, wgs84 text, federation text,licences_en_2011 int, moins_de_20_ans int, entre_20_et_60_ans int, plus_de_60_ans int, femmes int, "
                 + "femmes_moins_de_20_ans int, femmes_de_20_a_60_ans int, femmes_plus_de_60_ans int, licences_en_zone_urbaine_sensible_zus int, population_totale_2010 int, population_femme int, population_femmes_de_moins_de_20_ans int, "
                 + "population_femme_de_20_a_60_ans int, population_femme_de_plus_de_60_ans int, population_de_moins_de_20_ans int, population_de_20_a_60_ans int, population_de_plus_de_60_ans int);"
         );
 
         session.execute(
-                "CREATE TABLE bddCassandra.valdemarne (code_insee int PRIMARY KEY, code_postal int, commune text, wgs84 text, federation text,licences_en_2011 int, moins_de_20_ans int, entre_20_et_60_ans int, plus_de_60_ans int, femmes int, "
+                "CREATE TABLE IF NOT EXISTS bddCassandra.valdemarne (code_insee int PRIMARY KEY, code_postal int, commune text, wgs84 text, federation text,licences_en_2011 int, moins_de_20_ans int, entre_20_et_60_ans int, plus_de_60_ans int, femmes int, "
                 + "femmes_moins_de_20_ans int, femmes_de_20_a_60_ans int, femmes_plus_de_60_ans int, licences_en_zone_urbaine_sensible_zus int, population_totale_2010 int, population_femme int, population_femmes_de_moins_de_20_ans int, "
                 + "population_femme_de_20_a_60_ans int, population_femme_de_plus_de_60_ans int, population_de_moins_de_20_ans int, population_de_20_a_60_ans int, population_de_plus_de_60_ans int);"
         );
-
-        keyspaceCreated = true;
     }
 
     public void queryEssone() {
@@ -88,20 +85,24 @@ public class SimpleClient {
         System.out.println();
     }
 
+    public void copyData() {
+        session.execute(
+                "COPY bddCassandra.seinesaintdenis (code_insee, code_postal, commune, wgs84, federation, licences_en_2011, moins_de_20_ans, entre_20_et_60_ans, plus_de_60_ans, femmes, femmes_moins_de_20_ans, femmes_de_20_a_60_ans, femmes_plus_de_60_ans, licences_en_zone_urbaine_sensible_zus, population_totale_2010, population_femme, population_femmes_de_moins_de_20_ans, population_femme_de_20_a_60_ans, population_femme_de_plus_de_60_ans, population_de_moins_de_20_ans, population_de_20_a_60_ans, population_de_plus_de_60_ans) FROM 'seineSaintDenis.csv' WITH DELIMITER=';' ;"
+        );
+    }
+
     public static void main(String[] args) {
         // création d'un client
         SimpleClient client = new SimpleClient();
         // connection (localhost)
         client.connect("127.0.0.1");
         // création de la base de données (schema)
-        try {
-            client.createSchema();
-        } catch (Exception e) {
-            // on interroge la base de données
-            client.queryEssone();
-            client.queryValDeMarne();
-            client.querySeineSaintDenis();
-            client.close();
-        }
+         client.createSchema();
+        // on interroge la base de données
+        //client.copyData();
+        client.queryEssone();
+        client.queryValDeMarne();
+        client.querySeineSaintDenis();
+        client.close();
     }
 }
